@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const connection = require("./Config/db");
 const UserModel = require("./Models/user.model");
 const ScoreModel = require("./Models/score.model");
+const authentication = require("./Middlewares/authorization");
 
 const app = express();
 app.use(express.json());
@@ -60,7 +61,46 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.listen(9493, async () => {
+app.post("/score", authentication, async (req, res) => {
+  const score = req.body;
+  try {
+    let user_score = new ScoreModel(score);
+    await user_score.save();
+    res.send({ smg: user_score });
+  } catch (error) {
+    console.log(error);
+    res.send("Somthing error in score function");
+  }
+});
+
+app.get("/score", authentication, async (req, res) => {
+  const { userID } = req.body;
+  try {
+    const user_score = await ScoreModel.findOne({ userID });
+    res.send({ smg: user_score });
+  } catch (error) {
+    console.log(error);
+    res.send("Somthing error in score function");
+  }
+});
+
+app.patch("/score/:id", authentication, async (req, res) => {
+  const { id } = req.params;
+  const payload = req.body;
+  try {
+    const user_score = await ScoreModel.findByIdAndUpdate(
+      id,
+      { $set: payload },
+      { new: true }
+    );
+    res.send({ smg: user_score });
+  } catch (error) {
+    console.log(error);
+    res.send("Somthing error in score function");
+  }
+});
+
+app.listen(8080, async () => {
   try {
     await connection;
     console.log("Connected With DB");
@@ -68,5 +108,5 @@ app.listen(9493, async () => {
     console.log(error);
     console.log("Somthing Wrong in Server");
   }
-  console.log("Listening on PORT 9493");
+  console.log("Listening on PORT 8080");
 });
