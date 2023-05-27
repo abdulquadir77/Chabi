@@ -103,7 +103,7 @@ app.patch("/score/:id", authentication, async (req, res) => {
 app.listen(8080, async () => {
   try {
     await connection;
-    console.log("Connected With DB");
+    console.log("Connected With db");
   } catch (error) {
     console.log(error);
     console.log("Somthing Wrong in Server");
